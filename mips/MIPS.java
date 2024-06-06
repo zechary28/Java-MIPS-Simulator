@@ -87,7 +87,6 @@ public class MIPS {
 
     // instructions are encoded as static functions to manually set opcode and function
     // this is to load the instruction list with instructions which is then decoded again and executed
-    // could be improved in the future using hashmaps
 
     // r instructions: add , sub , and , or , sll , srl
     // parameters: (int rd, int rs, int rt) index of registers
@@ -215,16 +214,14 @@ public class MIPS {
         DecodeStage.run();
         int WR = ControlUnit.getRegDst() == '1' 
             ? new Word(DecodeStage.getRD()).toDec()
-            : new Word(DecodeStage.getRT()).toDec();
+            : new Word(DecodeStage.getRT()).toDec(); //////
 
         // ALU
-        // Word operand2 = ControlUnit.getALUSrc() == '1' 
-        //     ? signExtend(DecodeStage.getImmediate()) 
-        //     : DecodeStage.getRD2();
+        Word operand2 = ControlUnit.getALUSrc() == '1' 
+            ? signExtend(DecodeStage.getImmediate()) 
+            : DecodeStage.getRD2(); //////
         ALUStage.update(DecodeStage.getRD1(), 
-                ControlUnit.getALUSrc() == '1' 
-                    ? signExtend(DecodeStage.getImmediate()) 
-                    : DecodeStage.getRD2(), 
+                operand2,
                 ControlUnit.getALUControl());
         ALUStage.run();
 
@@ -238,18 +235,18 @@ public class MIPS {
         // branching
         char PCSrc = (ControlUnit.getBranch() == '1') && (ALUStage.isZero() == '1')
             ? '1'
-            : '0';
+            : '0'; ///////
         int BranchSteps = PCSrc == '1' 
             ? signExtend(DecodeStage.getImmediate()).logicalShiftLeft(2).toDec()
-            : 0;
+            : 0; ///////
         if (PCSrc == '1') {
             InstructionFetchStage.branch(BranchSteps);
-        }
+        } //////
         
         // Write Back
         Word WD = ControlUnit.getMemToReg() == '1' 
             ? MemoryStage.getReadData()
-            : ALUStage.getResult();
+            : ALUStage.getResult(); ///////
         WriteBackStage.update(WR, WD, ControlUnit.getRegWrite());
         WriteBackStage.run();
 
@@ -266,21 +263,75 @@ public class MIPS {
 
     }
 
-    // each stage will 
-    // public void pipeline() {
-    //     InstructionFetchStage.update();
-    //     DecodeStage.update(InstructionFetchStage.getInstruction());
+    // all stages run once
+    // idea is that all inputs are taken from PipelineRegs
+    // then all outputs is stored in PipelineRegs for the next cycle
+    // for first few, PipelineRegs will have nop instruction
+    // each instruction will take 5 calls of pipeline() to complete
+    // to work on branching
+    public void pipeline(boolean draw) {
+        // back to front
+        // PIPELINE 3 WB
+        Word WD = PipelineRegs.MemToReg3 == '1' 
+            ? PipelineRegs.ReadData3
+            : PipelineRegs.ALUResult3;
+        WriteBackStage.update(PipelineRegs.WriteRegister3, WD, PipelineRegs.RegWrite3);
+        WriteBackStage.run();
 
-    //     ALUStage.update(DecodeStage.getRD1(), operand2, DecodeStage.getALUControl());
-
-    //     InstructionFetchStage.run();
-    //     DecodeStage.run();
-    //     ALUStage.run();
-    //     MemoryStage.run();
-    //     WriteBackStage.run();
-
+        // PIPELINE 2 MEM
+        char PCSrc = (PipelineRegs.Branch2 == '1') && (PipelineRegs.isZero2 == '1')
+            ? '1'
+            : '0'; ///////
+        int BranchSteps = PCSrc == '1' 
+            ? PipelineRegs.BranchResult2
+            : 0; ///////  LOGIC FOR CALCULATING BRANCH, TO BE BEFORE DIVIDE BY 4
+        if (PCSrc == '1') {
+            InstructionFetchStage.branch(BranchSteps);
+        } ///////////////////////
         
-    // }
+        MemoryStage.update(PipelineRegs.ALUResult2, PipelineRegs.ReadData2_2, PipelineRegs.MemRead2, PipelineRegs.MemWrite2);
+        MemoryStage.run();
+
+        //PIPELINE 1: ALU
+        int BranchRes = PipelineRegs.PCplus4_1 + 
+                PipelineRegs.immSignExtended1.logicalShiftLeft(2).toDec();
+        int WR = PipelineRegs.RegDst1 == '1' 
+            ? new Word(PipelineRegs.RD1).toDec()
+            : new Word(PipelineRegs.RT1).toDec(); //////
+        Word operand2 = PipelineRegs.ALUSrc1 == '1' 
+            ? PipelineRegs.immSignExtended1
+            : PipelineRegs.ReadData2_1; //////
+        ALUStage.update(PipelineRegs.ReadData1_1, 
+                operand2,
+                PipelineRegs.ALUControl1);
+        ALUStage.run();
+
+        // Decode Stage
+        DecodeStage.update(InstructionFetchStage.getInstruction());
+        DecodeStage.run();
+        Word SignExtImm = signExtend(DecodeStage.getImmediate());
+        
+        // IF Stage
+        InstructionFetchStage.update();
+        InstructionFetchStage.run();
+
+        // store for next cycle
+        PipelineRegs.store1(SignExtImm);
+        PipelineRegs.store2(BranchRes, WR);
+        PipelineRegs.store3();
+
+        if (draw) {
+            InstructionFetchStage.draw();
+            ControlUnit.draw();
+            DecodeStage.draw();
+            ALUStage.draw();
+            MemoryStage.draw();
+            WriteBackStage.draw();
+        }
+        drawRegs();
+        drawMem();
+        
+    }
 
     public static void drawRegs() {
         System.out.println("+--[ Registers ] --+");

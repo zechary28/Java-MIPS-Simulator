@@ -6,11 +6,12 @@ public class InstructionFetchStage {
     // inputs
     private static int ProgramCounter = 0;
     private static int instructionNumber = 0;
+    private static int stall = 0;
 
     private static boolean done = true;
     
     //outputs
-    private static Word instruction;
+    private static Word instruction = new Word();
 
     public static void update() {
         if (done) {
@@ -24,6 +25,10 @@ public class InstructionFetchStage {
             ProgramCounter += 4;
             instruction = MIPS.getInstructions().get(ProgramCounter / 4 - 1);
             done = true;
+        }
+        if (stall > 0) {
+            instruction = new Word(); // nop instruction or sll $0 $0 0
+            stall--;
         }
     }
 

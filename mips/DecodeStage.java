@@ -3,22 +3,22 @@ package mips;
 public class DecodeStage {
     
     // inputs
-    private static String opcode;
-    private static String rs;
-    private static String rt;
-    private static String rd;
-    private static String shamt;
-    private static String func;
-    private static String immediate;
+    private static String opcode = "000000";
+    private static String rs = "00000";
+    private static String rt = "00000";
+    private static String rd = "00000";
+    private static String shamt = "00000";
+    private static String func = "000000";
+    private static String immediate = "0000000000000000";
 
     private static boolean done = true;
 
     // outputs
-    private static int RR1;
-    private static int RR2;
-    private static Word RD1;
-    private static Word RD2;
-    private static int shift;
+    private static int RR1 = 0;
+    private static int RR2 = 0;
+    private static Word RD1 = new Word();
+    private static Word RD2 = new Word();
+    private static int shift = 0;
 
     public static void update(Word word) {
         if (done) {
