@@ -55,9 +55,6 @@ public class ALUStage {
     };
     */
 
-    public ALUStage() {
-        
-    }
 
     public static void update(Word op1, Word op2, String ALUCtrl) {
         operand1 = op1;

@@ -4,48 +4,33 @@ package mips;
 public class InstructionFetchStage {
 
     // inputs
-    private static int ProgramCounter = 0;
     private static int instructionNumber = 0;
-    private static int stall = 0;
 
     private static boolean done = true;
+    public static boolean RAW1 = false;
+    public static boolean RAW2 = false;
     
     //outputs
     private static Word instruction = new Word();
 
     public static void update() {
         if (done) {
-            instructionNumber++;
             done = false;
         }
     }
 
     public static void run() {
         if (!done) {
-            ProgramCounter += 4;
-            instruction = MIPS.getInstructions().get(ProgramCounter / 4 - 1);
+            instruction = MIPS.getInstructions().get(MIPS.getPC() / 4);
             done = true;
         }
-        if (stall > 0) {
-            instruction = new Word(); // nop instruction or sll $0 $0 0
-            stall--;
-        }
-    }
-
-    public static void branch(int branchsteps) {
-        ProgramCounter += branchsteps;
-        if (branchsteps != 0) {
-            System.out.println("branch taken");
-        }
-    }
-
-    public static void jump(int address) {
-        // keeps 4 msbits of PC
-        ProgramCounter = address % 67108864;
-    }
-
-    public static int getProgramCounter() {
-        return ProgramCounter;
+        // logic for detecting RAW
+        String rs = instruction.getWord().substring(6, 11);
+        String rt = instruction.getWord().substring(11, 16);
+        RAW2 = (PipelineRegs.WriteRegister1 != 0) && 
+                    (PipelineRegs.WriteRegister1 == new Word(rs).toDec() || PipelineRegs.WriteRegister1 == new Word(rt).toDec());
+        RAW1 = (PipelineRegs.WriteRegister2 != 0) && 
+                    (PipelineRegs.WriteRegister2 == new Word(rs).toDec() || PipelineRegs.WriteRegister2 == new Word(rt).toDec());
     }
 
     public static Word getInstruction() {
@@ -56,11 +41,15 @@ public class InstructionFetchStage {
         return done;
     }
 
+    public static void stall() {
+        instruction = new Word();
+    }
+
     public static void draw() {
         System.out.println("+--------- [Instruction Fetch Stage ] ----------+");
-        System.out.println("| Program Counter: " + ProgramCounter + "                           |");
+        System.out.println("| Program Counter: " + MIPS.getPC() + "                           |");
         System.out.println("| done: " + done + "                                    |");
-        System.out.println("| Instruction Number: " + instructionNumber + "                        |");
+        System.out.println("| Instruction Number: " + MIPS.getInstructionNumber() + "                        |");
         System.out.println("| Instruction: " + instruction + " |");
         System.out.println("+-----------------------------------------------+");
     }

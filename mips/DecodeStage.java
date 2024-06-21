@@ -10,12 +10,12 @@ public class DecodeStage {
     private static String shamt = "00000";
     private static String func = "000000";
     private static String immediate = "0000000000000000";
+    private static int RR1 = 0;
+    private static int RR2 = 0;
 
     private static boolean done = true;
 
     // outputs
-    private static int RR1 = 0;
-    private static int RR2 = 0;
     private static Word RD1 = new Word();
     private static Word RD2 = new Word();
     private static int shift = 0;
@@ -30,16 +30,17 @@ public class DecodeStage {
             shamt = w.substring(21, 26);
             func = w.substring(26);
             immediate = w.substring(16);
-            ControlUnit.update(opcode, func);
+            
+            RR1 = new Word(rs).toDec();
+            RR2 = new Word(rt).toDec();
             done = false;
         }
     }
 
     public static void run() {
         if (!done) {
+            ControlUnit.update(opcode, func);
             ControlUnit.run();
-            RR1 = new Word(rs).toDec();
-            RR2 = new Word(rt).toDec();
             RD1 = MIPS.getRegisters().get(RR1);
             RD2 = MIPS.getRegisters().get(RR2);
             shift = new Word(shamt).toDec();
@@ -48,11 +49,11 @@ public class DecodeStage {
     }
 
     // getters and setters
-    public static String getRT() {
-        return rt;
+    public static int getRT() {
+        return new Word(rt).toDec();
     }
-    public static String getRD() {
-        return rd;
+    public static int getRD() {
+        return new Word(rd).toDec();
     }
     public static Word getRD1() {
         return RD1;

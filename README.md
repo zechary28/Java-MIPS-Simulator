@@ -34,7 +34,7 @@ The subsequent stage class can then access the its required input via getter met
 
 The MIPS class brings the 5 stages together.
 There are static methods that return a Word instruction, this is used to load the instruction ArrayList
-available tested instructions include:  rformat add sub and or srl sll slt
+available tested instructions include:  rformat add sub and or slt, (srl sll not tested)
                                         iformat addi andi ori lw sw beq
                                         jump (to be tested)
 cycle() method: 

@@ -4,12 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MIPS {
-    private static int ProgramCounter;
-    private static int instructionNumber;
+    private static int ProgramCounter = 0;
+    private static int instructionNumber = 1;
+    private static int stall = 0;
+    private static int totalCycles = 0;
 
     private static ArrayList<Word> registers;
     private static ArrayList<Word> instructions;
     private static ArrayList<Word> memory;
+
+    private static boolean enableForwarding = false;
+    private static boolean earlyBranching = false;
+    private static boolean enableBranchPredict = false;
+    private static boolean predictBranchTaken = false;
     
     public MIPS() {
         registers = new ArrayList<>();
@@ -49,6 +56,37 @@ public class MIPS {
 
     public void loadMemory(List<Word> data) {
         memory.addAll(data);
+    }
+
+    public static int getPC() {
+        return ProgramCounter;
+    }
+
+    public static int getInstructionNumber() {
+        return instructionNumber;
+    }
+
+    public static int getTotalCycles() {
+        return totalCycles;
+    }
+
+    public static void branch(int branchsteps) {
+        ProgramCounter += branchsteps;
+        if (branchsteps != 0) {
+            System.out.println("branch taken");
+        }
+    }
+
+    // public static void jump(int address) {
+    //     // keeps 4 msbits of PC
+    //     ProgramCounter = address % 67108864;
+    // }
+
+    public static void configure(boolean enableForwarding, boolean earlyBranching, boolean enableBranchPredict, boolean predictBranchTaken) {
+        enableForwarding = enableForwarding;
+        earlyBranching = earlyBranching;
+        enableBranchPredict = enableBranchPredict;
+        predictBranchTaken = predictBranchTaken;
     }
 
     public static Word signExtend(String str) {
@@ -205,6 +243,7 @@ public class MIPS {
     // run processes the input and changes its fields for output
     // multiplexer decision is made here using ? : statements
     public static void cycle(boolean draw) {
+
         // Instruction Fetch
         InstructionFetchStage.update();
         InstructionFetchStage.run();
@@ -213,8 +252,8 @@ public class MIPS {
         DecodeStage.update(InstructionFetchStage.getInstruction());
         DecodeStage.run();
         int WR = ControlUnit.getRegDst() == '1' 
-            ? new Word(DecodeStage.getRD()).toDec()
-            : new Word(DecodeStage.getRT()).toDec(); //////
+            ? DecodeStage.getRD()
+            : DecodeStage.getRT(); //////
 
         // ALU
         Word operand2 = ControlUnit.getALUSrc() == '1' 
@@ -240,7 +279,7 @@ public class MIPS {
             ? signExtend(DecodeStage.getImmediate()).logicalShiftLeft(2).toDec()
             : 0; ///////
         if (PCSrc == '1') {
-            InstructionFetchStage.branch(BranchSteps);
+            ProgramCounter += BranchSteps;
         } //////
         
         // Write Back
@@ -258,6 +297,9 @@ public class MIPS {
             MemoryStage.draw();
             WriteBackStage.draw();
         }
+        
+        ProgramCounter += 4;
+
         drawRegs();
         drawMem();
 
@@ -271,12 +313,14 @@ public class MIPS {
     // to work on branching
     public void pipeline(boolean draw) {
         // back to front
+
         // PIPELINE 3 WB
         Word WD = PipelineRegs.MemToReg3 == '1' 
             ? PipelineRegs.ReadData3
             : PipelineRegs.ALUResult3;
         WriteBackStage.update(PipelineRegs.WriteRegister3, WD, PipelineRegs.RegWrite3);
         WriteBackStage.run();
+        PipelineRegs.store3();
 
         // PIPELINE 2 MEM
         char PCSrc = (PipelineRegs.Branch2 == '1') && (PipelineRegs.isZero2 == '1')
@@ -286,7 +330,7 @@ public class MIPS {
             ? PipelineRegs.BranchResult2
             : 0; ///////  LOGIC FOR CALCULATING BRANCH, TO BE BEFORE DIVIDE BY 4
         if (PCSrc == '1') {
-            InstructionFetchStage.branch(BranchSteps);
+            ProgramCounter += BranchSteps;
         } ///////////////////////
         
         MemoryStage.update(PipelineRegs.ALUResult2, PipelineRegs.ReadData2_2, PipelineRegs.MemRead2, PipelineRegs.MemWrite2);
@@ -295,9 +339,6 @@ public class MIPS {
         //PIPELINE 1: ALU
         int BranchRes = PipelineRegs.PCplus4_1 + 
                 PipelineRegs.immSignExtended1.logicalShiftLeft(2).toDec();
-        int WR = PipelineRegs.RegDst1 == '1' 
-            ? new Word(PipelineRegs.RD1).toDec()
-            : new Word(PipelineRegs.RT1).toDec(); //////
         Word operand2 = PipelineRegs.ALUSrc1 == '1' 
             ? PipelineRegs.immSignExtended1
             : PipelineRegs.ReadData2_1; //////
@@ -305,20 +346,44 @@ public class MIPS {
                 operand2,
                 PipelineRegs.ALUControl1);
         ALUStage.run();
+        PipelineRegs.store2(BranchRes);
+
+        // WR decided at pipeline 1 and stored using PipelineRegs.store1()
+        // RAW detected at IF stage run() depending on WR in PipelineRegs
+        // stall is done in Pipeline by injecting a nop instruction by stall()
 
         // Decode Stage
-        DecodeStage.update(InstructionFetchStage.getInstruction());
+        DecodeStage.update(PipelineRegs.instruction0);
         DecodeStage.run();
+        int WR = ControlUnit.getRegDst() == '1' 
+            ? DecodeStage.getRD()
+            : DecodeStage.getRT(); //////
         Word SignExtImm = signExtend(DecodeStage.getImmediate());
-        
+        PipelineRegs.store1(SignExtImm, WR);
+
         // IF Stage
         InstructionFetchStage.update();
         InstructionFetchStage.run();
+        if (InstructionFetchStage.RAW2 || InstructionFetchStage.RAW1) {
+            stall = InstructionFetchStage.RAW2
+                    ? 2
+                    : InstructionFetchStage.RAW1
+                    ? 1
+                    : 0;
+            System.out.println("RAW DETECTED");
+        }
 
-        // store for next cycle
-        PipelineRegs.store1(SignExtImm);
-        PipelineRegs.store2(BranchRes, WR);
-        PipelineRegs.store3();
+        if (stall > 0) {
+            PipelineRegs.stall();
+            stall --;
+        } else {
+            PipelineRegs.store0(ProgramCounter + 4);
+            ProgramCounter = PCSrc == '0'
+            ? PipelineRegs.PCplus4_0
+            : PipelineRegs.BranchResult2;
+            instructionNumber++;
+        }
+        totalCycles++;
 
         if (draw) {
             InstructionFetchStage.draw();
