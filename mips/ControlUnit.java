@@ -20,6 +20,7 @@ public class ControlUnit {
     private static char MemRead;
     private static char MemWrite;
     private static char Branch;
+    private static boolean jump;
     
     // ALUControl
     private static String func;
@@ -34,10 +35,10 @@ public class ControlUnit {
         lw = opcode.equals("100011");
         sw = opcode.equals("101011");
         beq = opcode.equals("000100");
-        // immediate instructions
         addi = opcode.equals("001000");
         andi = opcode.equals("001100");
         ori = opcode.equals("001101");
+        jump = opcode.equals("000010");
         func = fun;     
         done = false;
     }
@@ -99,6 +100,9 @@ public class ControlUnit {
     public static String getALUControl() {
         return ALUControl;
     }
+    public static boolean getJump() {
+        return jump;
+    }
     public static boolean isDone() {
         return done;
     }
@@ -114,7 +118,9 @@ public class ControlUnit {
         } else if (beq) {
             typeprint = "| type: beq              |";
         } else if (addi || andi || ori) {
-            typeprint = "| type: aluimm           |";
+            typeprint = "| type: alu imm          |";
+        } else if (jump) {
+            typeprint = "| type: jump             |";
         } else {
             typeprint = "| type: invalid opcode   |";
         }

@@ -102,9 +102,10 @@ public class Word {
         return new Word(s);
     }
 
+    // hardware implementation of addition in the ALU
     public Word add(Word w, char Cin) {
         char c = Cin; // Cin to be zero for add, 1 for subtract, update for Cout, use as Cin for next bit
-        String s = ""; // accumulate s
+        String s = ""; // accumulate result in s
         for (int i = WORD_LENGTH - 1; i >= 0; i--) {
             char a = w.word.charAt(i);
             char b = this.word.charAt(i);

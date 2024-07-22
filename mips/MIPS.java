@@ -12,11 +12,12 @@ public class MIPS {
     private static ArrayList<Word> registers;
     private static ArrayList<Word> instructions;
     private static ArrayList<Word> memory;
+    //private static RAWArrayList rawlist;
 
-    private static boolean enableForwarding = false;
-    private static boolean earlyBranching = false;
-    private static boolean enableBranchPredict = false;
-    private static boolean predictBranchTaken = false;
+    public static boolean enableForwarding = false;
+    public static boolean earlyBranching = false;
+    public static boolean enableBranchPredict = false;
+    public static boolean predictBranchTaken = false;
     
     public MIPS() {
         registers = new ArrayList<>();
@@ -230,10 +231,10 @@ public class MIPS {
             new Word(imm).subword(16));
     }
     
-    // encode j format (address divisible by 4)
-    public static Word jump(int address) {
+    // encode j format (instruction number)
+    public static Word jump(int instnum) {
         return new Word("000010" +
-            toBinary(address).logicalShiftRight(2).subword(26));
+            toBinary(instnum).subword(26));
     }
 
     // process one instruction fully
@@ -264,8 +265,15 @@ public class MIPS {
                 ControlUnit.getALUControl());
         ALUStage.run();
 
+        // for shift instructions
+        Word result = DecodeStage.shiftleft 
+            ? DecodeStage.getRD2().logicalShiftLeft(DecodeStage.getShift())
+            : DecodeStage.shiftright
+            ? DecodeStage.getRD2().logicalShiftRight(DecodeStage.getShift())
+            : ALUStage.getResult();
+
         // Memory
-        MemoryStage.update(ALUStage.getResult(), 
+        MemoryStage.update(result, 
                 DecodeStage.getRD2(), 
                 ControlUnit.getMemRead(), 
                 ControlUnit.getMemWrite());
@@ -278,14 +286,13 @@ public class MIPS {
         int BranchSteps = PCSrc == '1' 
             ? signExtend(DecodeStage.getImmediate()).logicalShiftLeft(2).toDec()
             : 0; ///////
-        if (PCSrc == '1') {
-            ProgramCounter += BranchSteps;
-        } //////
+        ProgramCounter += BranchSteps;
+        //////
         
         // Write Back
         Word WD = ControlUnit.getMemToReg() == '1' 
             ? MemoryStage.getReadData()
-            : ALUStage.getResult(); ///////
+            : result; ///////
         WriteBackStage.update(WR, WD, ControlUnit.getRegWrite());
         WriteBackStage.run();
 
@@ -297,8 +304,12 @@ public class MIPS {
             MemoryStage.draw();
             WriteBackStage.draw();
         }
-        
+
         ProgramCounter += 4;
+
+        if (ControlUnit.getJump()) {
+            ProgramCounter = DecodeStage.getJumpAddress();
+        }
 
         drawRegs();
         drawMem();
@@ -306,8 +317,8 @@ public class MIPS {
     }
 
     // all stages run once
-    // idea is that all inputs are taken from PipelineRegs
-    // then all outputs is stored in PipelineRegs for the next cycle
+    // all inputs are taken from PipelineRegs
+    // then all outputs are stored back in PipelineRegs for the next cycle
     // for first few, PipelineRegs will have nop instruction
     // each instruction will take 5 calls of pipeline() to complete
     // to work on branching
@@ -329,10 +340,7 @@ public class MIPS {
         int BranchSteps = PCSrc == '1' 
             ? PipelineRegs.BranchResult2
             : 0; ///////  LOGIC FOR CALCULATING BRANCH, TO BE BEFORE DIVIDE BY 4
-        if (PCSrc == '1') {
-            ProgramCounter += BranchSteps;
-        } ///////////////////////
-        
+        ProgramCounter += BranchSteps;
         MemoryStage.update(PipelineRegs.ALUResult2, PipelineRegs.ReadData2_2, PipelineRegs.MemRead2, PipelineRegs.MemWrite2);
         MemoryStage.run();
 
@@ -346,7 +354,20 @@ public class MIPS {
                 operand2,
                 PipelineRegs.ALUControl1);
         ALUStage.run();
-        PipelineRegs.store2(BranchRes);
+        // for shift instructions
+        Word result = ALUStage.getResult();
+        if (DecodeStage.shiftleft) {
+            result = DecodeStage.getRD2().logicalShiftLeft(DecodeStage.getShift());
+            System.out.println("shift left chosen");
+        } else if (DecodeStage.shiftright) {
+            result = DecodeStage.getRD2().logicalShiftRight(DecodeStage.getShift());
+            System.out.println("shift right chosen");
+        } else {
+            System.out.println("ALU result chosen");
+
+        }
+        System.out.println("result: " + result);
+        PipelineRegs.store2(result, BranchRes);
 
         // WR decided at pipeline 1 and stored using PipelineRegs.store1()
         // RAW detected at IF stage run() depending on WR in PipelineRegs
@@ -360,30 +381,15 @@ public class MIPS {
             : DecodeStage.getRT(); //////
         Word SignExtImm = signExtend(DecodeStage.getImmediate());
         PipelineRegs.store1(SignExtImm, WR);
+        
+        if (ControlUnit.getJump()) {
+            ProgramCounter = DecodeStage.getJumpAddress();
+            System.out.println("PC jump to " + ProgramCounter);
+        }
 
         // IF Stage
         InstructionFetchStage.update();
         InstructionFetchStage.run();
-        if (InstructionFetchStage.RAW2 || InstructionFetchStage.RAW1) {
-            stall = InstructionFetchStage.RAW2
-                    ? 2
-                    : InstructionFetchStage.RAW1
-                    ? 1
-                    : 0;
-            System.out.println("RAW DETECTED");
-        }
-
-        if (stall > 0) {
-            PipelineRegs.stall();
-            stall --;
-        } else {
-            PipelineRegs.store0(ProgramCounter + 4);
-            ProgramCounter = PCSrc == '0'
-            ? PipelineRegs.PCplus4_0
-            : PipelineRegs.BranchResult2;
-            instructionNumber++;
-        }
-        totalCycles++;
 
         if (draw) {
             InstructionFetchStage.draw();
@@ -395,7 +401,21 @@ public class MIPS {
         }
         drawRegs();
         drawMem();
-        
+
+        if (InstructionFetchStage.RAW2 || InstructionFetchStage.RAW1) {
+            PipelineRegs.stall();
+            System.out.println("RAW DETECTED");
+            System.out.println("will stall next instruction");
+        } else {
+            PipelineRegs.store0(ProgramCounter + 4);
+            ProgramCounter = PCSrc == '0'
+            ? PipelineRegs.PCplus4_0
+            : PipelineRegs.BranchResult2;
+            System.out.println("PC to " + ProgramCounter + " for next instr");
+            instructionNumber++;
+        }
+        totalCycles++;
+        System.out.println("cycles done: " + getTotalCycles());
     }
 
     public static void drawRegs() {
@@ -413,5 +433,39 @@ public class MIPS {
             System.out.println("| Mem " + i + ": " + memory.get(i).toDec());
         }
         System.out.println("+--------------+");
+    }
+
+    // shortcut for jshell
+    public void test() {
+        // set memory
+        this.loadMemory(List.of(
+            new mips.Word("1000 0000 0000 0000 0000 0000 0000 0000"),
+            new mips.Word("0111 1111 1111 1111 1111 1111 1111 1111"),
+            new mips.Word("0000 0000 0000 0000 0000 0000 0000 1010"),
+            MIPS.toBinary(31)
+        ));
+        // set instructions
+        // add sub addi and or
+        /*
+        this.loadInstruction(List.of(
+                MIPS.add(2, 1, 1), // 1
+                MIPS.add(4, 2, 2), // 2 RAW
+                MIPS.sub(3, 4, 1), // 3 RAW
+                MIPS.add(7, 3, 4), // 4 RAW
+                MIPS.add(5, 2, 3), // 5 
+                MIPS.add(10, 5, 5), // 6 1010 RAW
+                MIPS.addi(12, 10, 2), // 7 1100 RAW
+                MIPS.and(8, 10, 12), // 8 and 1000 RAW
+                MIPS.or(14, 10, 12) // 9 or 1110
+                ));
+        */
+        // shift and jump
+        this.loadInstruction(List.of(
+                MIPS.add(2, 1, 1), // 1
+                MIPS.sll(2, 2, 1), // 2 RAW 2 stalls
+                new Word(),
+                MIPS.jump(2) // 3 no raw on next step
+                ));
+        
     }
 }

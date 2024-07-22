@@ -10,6 +10,7 @@ public class DecodeStage {
     private static String shamt = "00000";
     private static String func = "000000";
     private static String immediate = "0000000000000000";
+    private static String jumpaddress = "00000000000000000000000000";
     private static int RR1 = 0;
     private static int RR2 = 0;
 
@@ -19,6 +20,10 @@ public class DecodeStage {
     private static Word RD1 = new Word();
     private static Word RD2 = new Word();
     private static int shift = 0;
+    private static int JumpAddress = 0;
+    // my implementation for functionality
+    public static boolean shiftright = false;
+    public static boolean shiftleft = false;
 
     public static void update(Word word) {
         if (done) {
@@ -30,6 +35,7 @@ public class DecodeStage {
             shamt = w.substring(21, 26);
             func = w.substring(26);
             immediate = w.substring(16);
+            jumpaddress = w.substring(6);
             
             RR1 = new Word(rs).toDec();
             RR2 = new Word(rt).toDec();
@@ -43,7 +49,10 @@ public class DecodeStage {
             ControlUnit.run();
             RD1 = MIPS.getRegisters().get(RR1);
             RD2 = MIPS.getRegisters().get(RR2);
+            shiftleft = opcode.equals("000000") && func.equals("000000");
+            shiftright = opcode.equals("000000") && func.equals("000010");
             shift = new Word(shamt).toDec();
+            JumpAddress = (new Word(jumpaddress).logicalShiftLeft(2).toDec() % 67108864) - 4;
             done = true;
         }   
     }
@@ -70,14 +79,24 @@ public class DecodeStage {
     public static String getFunc() {
         return func;
     }
+    public static int getJumpAddress() {
+        return JumpAddress;
+    }
     
     public static boolean isDone() {
         return done;
     }
 
     public static void draw() {
-        System.out.println("+---------------------------------------+");
-        System.out.println("|            [Decode Stage]             |");
+        String shiftprint = shiftleft 
+            ? "| shift: left, " + shift + "                        |"
+            : shiftright
+            ? "| shift: right, " + shift + "                       |"
+            : "| shift: false                          |";
+        String jumpprint = ControlUnit.getJump()
+            ? "| jump: to address " + JumpAddress + "                    |"
+            : "| jump: no jump                         |";
+        System.out.println("+------------[Decode Stage]-------------+");
         System.out.println("| opcode: " + opcode + "                        |");
         System.out.println("| rs: " + rs + "                             |");
         System.out.println("| rt: " + rt + "                             |");
@@ -90,7 +109,8 @@ public class DecodeStage {
         System.out.println("| RR2: " + RR2 + "                                |");
         System.out.println("| RD1: " + RD1 + " |");
         System.out.println("| RD2: " + RD2 + " |");
-        System.out.println("| shift: " + shift + "                              |");
+        System.out.println(jumpprint);
+        System.out.println(shiftprint);
         System.out.println("+---------------------------------------+");
     }
 }

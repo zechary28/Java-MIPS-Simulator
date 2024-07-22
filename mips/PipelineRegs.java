@@ -1,11 +1,14 @@
 package mips;
 
 public class PipelineRegs {
-    // pipeline 1
+    // forwarding
+    public static int fw = 0;
+    
+    // pipeline 0
     public static Word instruction0 = new Word();
     public static int PCplus4_0 = 0;
 
-    // pineline 2: Decode to ALU
+    // pineline 1: Decode to ALU
     public static char RegWrite1 = '0';
     public static char MemToReg1 = '0';
     public static char Branch1 = '0';
@@ -23,7 +26,7 @@ public class PipelineRegs {
     public static int RD1 = 0;
     public static int WriteRegister1 = 0;
 
-    // pipeline 3: ALU to Mem
+    // pipeline 2: ALU to Mem
     public static char RegWrite2 = '0';
     public static char MemToReg2 = '0';
     public static char Branch2 = '0';
@@ -36,7 +39,7 @@ public class PipelineRegs {
     public static Word ReadData2_2 = new Word();
     public static int WriteRegister2 = 0;
 
-    // pipeline 4: Mem to WB
+    // pipeline 3: Mem to WB
     public static char RegWrite3 = '0';
     public static char MemToReg3 = '0';
 
@@ -47,6 +50,7 @@ public class PipelineRegs {
     public static void stall() {
         instruction0 = new Word();
     }
+    
     public static void store0(int PCplus4) {
         instruction0 = InstructionFetchStage.getInstruction();
         PCplus4_0 = PCplus4;
@@ -71,7 +75,7 @@ public class PipelineRegs {
         WriteRegister1 = WR;
     }
 
-    public static void store2(int BranchRes) {
+    public static void store2(Word ALURes, int BranchRes) {
         RegWrite2 = RegWrite1;
         MemToReg2 = MemToReg1;
         Branch2 = Branch1;
@@ -80,7 +84,7 @@ public class PipelineRegs {
 
         BranchResult2 = BranchRes;
         isZero2 = ALUStage.isZero();
-        ALUResult2 = ALUStage.getResult();
+        ALUResult2 = ALURes;
         ReadData2_2 = ReadData2_1;
         WriteRegister2 = WriteRegister1;
     }
@@ -91,6 +95,7 @@ public class PipelineRegs {
 
         ReadData3 = MemoryStage.getReadData();
         ALUResult3 = ALUResult2;
+        System.out.println(ALUResult3 + " ALURes3 stored");
         WriteRegister3 = WriteRegister2;
     }
     

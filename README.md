@@ -45,13 +45,14 @@ The void pipeline() method will process all stages by 1 step
 
 Lecture 21 Pipelining Hazards
 Slide 9 : Already works by our implementation. instruction and data are separated into their respective ArrayLists
-Slide 11: WriteBackStage will run before DecodeStage
+Slide 11: WriteBackStage will run before DecodeStage in the run() method
 
+git commits:
 1. can pipeline, raw not detected and will cause issues
 2. detect raw, stall at IF stage
 3. forwarding
 
-Please take a look at the Main method and the source code in the package gto see how the MIPS class is used.
+Please take a look at the Main method and the source code in the package to see how the MIPS class is used.
 
 The end goal of this project is a dynamic visualisation of the MIPS architecture and how it processes assembly instructions.
 Might be hosted on a website
@@ -64,4 +65,6 @@ MIPS mips = new MIPS();
 mips.loadMemory(List.of(new mips.Word("011010"),...));
 mips.loadInstruction(List.of(MIPS.add(1,2,3),...));
 mips.cycle(true);
+or mips.pipeline(true);
 
+you can alternate between loadInstruction(...) and cycle()
