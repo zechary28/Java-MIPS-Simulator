@@ -2,17 +2,23 @@
 
 *.class
 
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
+# Gradle build files
+/.gradle/
+/build/
+src/main/resources/docs/
+
+# IDEA files
+/.idea/
+/out/
+/*.iml
+
+# MacOS custom attributes files created by Finder
+.DS_Store
+*.iml
+bin/
 
 # testing
 /coverage
-
-# next.js
-/.next/
-/out/
 
 # production
 /build
@@ -29,11 +35,3 @@ yarn-error.log*
 # local env files
 .env*.local
 .env
-
-# vercel
-.vercel
-
-# typescript
-*.tsbuildinfo
-next-env.d.ts
-
