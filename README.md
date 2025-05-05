@@ -59,12 +59,12 @@ Might be hosted on a website
 
 In jshell:
 
-import mips.*;
+import src.main.java.mips.*;
 import java.util.List;
-MIPS mips = new MIPS();
-mips.loadMemory(List.of(new mips.Word("011010"),...));
-mips.loadInstruction(List.of(MIPS.add(1,2,3),...));
-mips.cycle(true);
-or mips.pipeline(true);
+MIPS src.main.java.mips = new MIPS();
+src.main.java.mips.loadMemory(List.of(new src.main.java.mips.Word("011010"),...));
+src.main.java.mips.loadInstruction(List.of(MIPS.add(1,2,3),...));
+src.main.java.mips.cycle(true);
+or src.main.java.mips.pipeline(true);
 
 you can alternate between loadInstruction(...) and cycle()

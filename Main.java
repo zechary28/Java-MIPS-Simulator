@@ -1,13 +1,13 @@
-import mips.*;
+import src.main.java.mips.*;
 import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
         MIPS mips = new MIPS();
         mips.loadMemory(List.of(
-            new mips.Word("1000 0000 0000 0000 0000 0000 0000 0000"),
-            new mips.Word("0111 1111 1111 1111 1111 1111 1111 1111"),
-            new mips.Word("0000 0000 0000 0000 0000 0000 0000 1010"),
+            new src.main.java.mips.Word("1000 0000 0000 0000 0000 0000 0000 0000"),
+            new src.main.java.mips.Word("0111 1111 1111 1111 1111 1111 1111 1111"),
+            new src.main.java.mips.Word("0000 0000 0000 0000 0000 0000 0000 1010"),
             MIPS.toBinary(31)
         ));
         mips.loadInstruction(List.of(
@@ -32,7 +32,7 @@ public class Main {
     }
 
     /* test
-    mips.loadInstruction(List.of(
+    src.main.java.mips.loadInstruction(List.of(
         MIPS.add(2,1,1), 
 
         
@@ -42,6 +42,6 @@ public class Main {
         MIPS.add(5,3,2), 
         MIPS.add(10,5,5)));
 
-        mips.loadInstruction(List.of(MIPS.add(2, 1, 1), MIPS.add(4, 2, 2), MIPS.sub(3, 4, 1), MIPS.add(7, 3, 4), MIPS.add(5, 2, 3), MIPS.add(10, 5, 5), MIPS.addi(12, 10, 2), MIPS.and(8, 10, 12), MIPS.or(14, 10, 12)));
+        src.main.java.mips.loadInstruction(List.of(MIPS.add(2, 1, 1), MIPS.add(4, 2, 2), MIPS.sub(3, 4, 1), MIPS.add(7, 3, 4), MIPS.add(5, 2, 3), MIPS.add(10, 5, 5), MIPS.addi(12, 10, 2), MIPS.and(8, 10, 12), MIPS.or(14, 10, 12)));
     */
 }
