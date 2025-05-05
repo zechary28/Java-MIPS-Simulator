@@ -251,7 +251,7 @@ public class MIPS {
     // update receives input
     // run processes the input and changes its fields for output
     // multiplexer decision is made here using ? : statements
-    public static String cycle(boolean draw) {
+    public String cycle(boolean draw) {
 
         // Instruction Fetch
         InstructionFetchStage.update();
@@ -446,31 +446,31 @@ public class MIPS {
         return output.toString();
     }
 
-    public static String drawRegs() {
+    public String drawRegs() {
         StringBuilder temp = new StringBuilder();
-        temp.append("+--[ Registers ] --+");
+        temp.append("+--[ Registers ] --+\n");
         for (int i = 0; i < 32; i++) {
             temp.append("| Reg ");
             temp.append(i);
             temp.append(": ");
             temp.append(registers.get(i).toDec());
-            temp.append("        |");
+            temp.append("        |\n");
         }
-        temp.append("+------------------+");
+        temp.append("+------------------+\n");
         return temp.toString();
     }
 
-    public static String drawMem() {
+    public String drawMem() {
         StringBuilder temp = new StringBuilder();
-        temp.append("+--[ Memory ]--+");
+        temp.append("+--[ Memory ]--+\n");
         int len = memory.size();
         for (int i = 0; i < len; i++) {
             temp.append("| Mem ");
             temp.append(i);
             temp.append(": ");
-            temp.append(memory.get(i).toDec());
+            temp.append(memory.get(i).toDec() + "\n");
         }
-        temp.append("+--------------+");
+        temp.append("+--------------+\n");
         return temp.toString();
     }
 

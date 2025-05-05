@@ -46,14 +46,14 @@ public class MemoryStage {
 
     public static String draw() {
         StringBuilder output = new StringBuilder();
-        output.append("+--------------[ Memory Stage ]---------------+");
-        output.append("| Address: " + Address + "   |");
-        output.append("| WriteData: " + WriteData + " |");
-        output.append("| MemRead: " + MemRead + "                                  |");
-        output.append("| MemWrite: " + MemWrite + "                                 |");
-        output.append("| done: " + done + "                                  |");
-        output.append("| ReadData: " + ReadData + "  |");
-        output.append("+---------------------------------------------+");
+        output.append("+--------------[ Memory Stage ]---------------+\n");
+        output.append("| Address: " + Address + "   |\n");
+        output.append("| WriteData: " + WriteData + " |\n");
+        output.append("| MemRead: " + MemRead + "                                  |\n");
+        output.append("| MemWrite: " + MemWrite + "                                 |\n");
+        output.append("| done: " + done + "                                  |\n");
+        output.append("| ReadData: " + ReadData + "  |\n");
+        output.append("+---------------------------------------------+\n");
         return output.toString();
     }
 }

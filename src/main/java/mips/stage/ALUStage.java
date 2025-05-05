@@ -105,14 +105,14 @@ public class ALUStage {
 
     public static String draw() {
         StringBuilder output = new StringBuilder();
-        output.append("+------------------[ ALU Stage ]-----------------+");
-        output.append("| operand1: " + operand1 + "     |");
-        output.append("| operand2: " + operand2 + "     |");
-        output.append("| ALUControl " + ALUControl + "                                |");
-        output.append("| done: " + done + "                                     |");
-        output.append("| ALUresult: " + ALUresult + "    |");
-        output.append("| isZero: " + isZero + "                                      |");
-        output.append("+------------------------------------------------+");
+        output.append("+------------------[ ALU Stage ]-----------------+\n");
+        output.append("| operand1: " + operand1 + "     |\n");
+        output.append("| operand2: " + operand2 + "     |\n");
+        output.append("| ALUControl " + ALUControl + "                                |\n");
+        output.append("| done: " + done + "                                     |\n");
+        output.append("| ALUresult: " + ALUresult + "    |\n");
+        output.append("| isZero: " + isZero + "                                      |\n");
+        output.append("+------------------------------------------------+\n");
         return output.toString();
     }
 }

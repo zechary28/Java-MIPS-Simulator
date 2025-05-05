@@ -9,6 +9,7 @@ import mips.util.Word;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * TODO OUTDATED
@@ -31,6 +32,27 @@ public class Fluke {
      * and storage system. If the storage system cannot be found, the program will terminate.
      */
     public Fluke() {
+        this.mips = new MIPS();
+        // TODO READ DATA
+        mips.loadMemory(List.of(
+                new Word("1000 0000 0000 0000 0000 0000 0000 0000"),
+                new Word("0111 1111 1111 1111 1111 1111 1111 1111"),
+                new Word("0000 0000 0000 0000 0000 0000 0000 1010"),
+                MIPS.toBinary(31)
+        ));
+        // TODO READ TEXT
+        mips.loadInstruction(List.of(
+                MIPS.add(2, 1, 1), // 1
+                MIPS.add(4, 2, 2), // 2 RAW
+                MIPS.sub(3, 4, 1), // 3 RAW
+                MIPS.add(7, 3, 4), // 4 RAW
+                MIPS.add(5, 2, 3), // 5
+                MIPS.add(10, 5, 5), // 6 1010 RAW
+                MIPS.addi(12, 10, 2), // 7 1100 RAW
+                MIPS.and(8, 10, 12), // 8 and 1000 RAW
+                MIPS.or(14, 10, 12) // 9 or 1110
+        ));
+
         this.ui = new Ui();
         try {
             this.storage = new Storage();
@@ -71,28 +93,13 @@ public class Fluke {
                 this.output.append("There was a problem writing to the file\n");
             }
             System.exit(0);
+        } else if (command.equals("cycle")) {
+            this.output.append(mips.cycle(true));
+        } else if (command.equals("pipeline")) {
+            this.output.append(mips.pipeline(true));
+        } else {
+            this.output.append("Invalid command");
         }
-//        } else if (command.equals("mark")) {
-//            markTask(Integer.parseInt(inputArr[1]) - 1, true);
-//        } else if (command.equals("unmark")) {
-//            markTask(Integer.parseInt(inputArr[1]) - 1, false);
-//        } else if (command.equals("list")) {
-//            printList(this.taskList.getList());
-//        } else if (command.equals("delete")) {
-//            deleteTask(Integer.parseInt(inputArr[1]) - 1);
-//        } else if (command.equals("find")) {
-//            findTask(inputArr[1]);
-//        } else if (command.equals("sort")) {
-//            boolean isApply = true;
-//            try {
-//                isApply = !inputArr[1].isEmpty();
-//            } catch (ArrayIndexOutOfBoundsException e) {
-//                isApply = false;
-//            }
-//            showSortedList(isApply);
-//        } else { // add tasks
-//            handleAddTask(input);
-//        }
         return this.output.toString();
     }
 

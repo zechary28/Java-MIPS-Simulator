@@ -28,11 +28,11 @@ public class WriteBackStage {
 
     public static String draw() {
         StringBuilder output = new StringBuilder();
-        output.append("+------------[ Write Back Stage ]-------------+");
-        output.append("| WriteRegister: " + WriteRegister + "                            |");
-        output.append("| WriteData: " + WriteData + " |");
-        output.append("| done: " + done + "                                  |");
-        output.append("+---------------------------------------------+");
+        output.append("+------------[ Write Back Stage ]-------------+\n");
+        output.append("| WriteRegister: " + WriteRegister + "                            |\n");
+        output.append("| WriteData: " + WriteData + " |\n");
+        output.append("| done: " + done + "                                  |\n");
+        output.append("+---------------------------------------------+\n");
         return output.toString();
     }
 }

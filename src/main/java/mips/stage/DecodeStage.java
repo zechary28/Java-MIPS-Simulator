@@ -93,29 +93,29 @@ public class DecodeStage {
     public static String draw() {
         StringBuilder output = new StringBuilder();
         String shiftprint = shiftleft 
-            ? "| shift: left, " + shift + "                        |"
+            ? "| shift: left, " + shift + "                        |\n"
             : shiftright
-            ? "| shift: right, " + shift + "                       |"
-            : "| shift: false                          |";
+            ? "| shift: right, " + shift + "                       |\n"
+            : "| shift: false                          |\n";
         String jumpprint = ControlUnit.getJump()
-            ? "| jump: to address " + JumpAddress + "                    |"
-            : "| jump: no jump                         |";
-        output.append("+------------[Decode Stage]-------------+");
-        output.append("| opcode: " + opcode + "                        |");
-        output.append("| rs: " + rs + "                             |");
-        output.append("| rt: " + rt + "                             |");
-        output.append("| rd: " + rd + "                             |");
-        output.append("| shamt: " + shamt + "                          |");
-        output.append("| func: " + func + "                          |");
-        output.append("| immediate: " + immediate + "           |");
-        output.append("| done: " + done + "                            |");
-        output.append("| RR1: " + RR1 + "                                |");
-        output.append("| RR2: " + RR2 + "                                |");
-        output.append("| RD1: " + RD1 + " |");
-        output.append("| RD2: " + RD2 + " |");
+            ? "| jump: to address " + JumpAddress + "                    |\n"
+            : "| jump: no jump                         |\n";
+        output.append("+------------[Decode Stage]-------------+\n");
+        output.append("| opcode: " + opcode + "                        |\n");
+        output.append("| rs: " + rs + "                             |\n");
+        output.append("| rt: " + rt + "                             |\n");
+        output.append("| rd: " + rd + "                             |\n");
+        output.append("| shamt: " + shamt + "                          |\n");
+        output.append("| func: " + func + "                          |\n");
+        output.append("| immediate: " + immediate + "           |\n");
+        output.append("| done: " + done + "                            |\n");
+        output.append("| RR1: " + RR1 + "                                |\n");
+        output.append("| RR2: " + RR2 + "                                |\n");
+        output.append("| RD1: " + RD1 + " |\n");
+        output.append("| RD2: " + RD2 + " |\n");
         output.append(jumpprint);
         output.append(shiftprint);
-        output.append("+---------------------------------------+");
+        output.append("+---------------------------------------+\n");
         return output.toString();
     }
 }

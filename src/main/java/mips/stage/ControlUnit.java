@@ -114,36 +114,36 @@ public class ControlUnit {
         StringBuilder output = new StringBuilder();
         String typeprint;
         if (rformat) {
-            typeprint = "| type: rformat          |";
+            typeprint = "| type: rformat          |\n";
         } else if (lw) {
-            typeprint = "| type: lw               |";
+            typeprint = "| type: lw               |\n";
         } else if (sw) {
-            typeprint = "| type: sw               |";
+            typeprint = "| type: sw               |\n";
         } else if (beq) {
-            typeprint = "| type: beq              |";
+            typeprint = "| type: beq              |\n";
         } else if (addi || andi || ori) {
-            typeprint = "| type: alu imm          |";
+            typeprint = "| type: alu imm          |\n";
         } else if (jump) {
-            typeprint = "| type: jump             |";
+            typeprint = "| type: jump             |\n";
         } else {
-            typeprint = "| type: invalid opcode   |";
+            typeprint = "| type: invalid opcode   |\n";
         }
-        output.append("+----[ Control Unit ]----+");
+        output.append("+----[ Control Unit ]----+\n");
         output.append(typeprint);
-        output.append("| done: " + done + "             |");
-        output.append("+------[ Signals ]-------+");
-        output.append("| RegDst: " + RegDst + "              |");
-        output.append("| ALUSrc: " + ALUSrc + "              |");
-        output.append("| MemToReg: " + MemToReg + "            |");
-        output.append("| RegWrite: " + RegWrite + "            |");
-        output.append("| MemRead: " + MemRead + "             |");
-        output.append("| MemWrite: " + MemWrite + "            |");
-        output.append("| Branch: " + Branch + "              |");
-        output.append("+----[ ALU Control ]-----+");
-        output.append("| Func: " + func + "           |");
-        output.append("| ALUop: " + ALUop1 + ALUop0 + "              |");
-        output.append("| ALUControl: " + ALUControl + "       |");
-        output.append("+------------------------+");
+        output.append("| done: " + done + "             |\n");
+        output.append("+------[ Signals ]-------+\n");
+        output.append("| RegDst: " + RegDst + "              |\n");
+        output.append("| ALUSrc: " + ALUSrc + "              |\n");
+        output.append("| MemToReg: " + MemToReg + "            |\n");
+        output.append("| RegWrite: " + RegWrite + "            |\n");
+        output.append("| MemRead: " + MemRead + "             |\n");
+        output.append("| MemWrite: " + MemWrite + "            |\n");
+        output.append("| Branch: " + Branch + "              |\n");
+        output.append("+----[ ALU Control ]-----+\n");
+        output.append("| Func: " + func + "           |\n");
+        output.append("| ALUop: " + ALUop1 + ALUop0 + "              |\n");
+        output.append("| ALUControl: " + ALUControl + "       |\n");
+        output.append("+------------------------+\n");
         return output.toString();
     }
 }

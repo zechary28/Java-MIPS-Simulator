@@ -27,7 +27,7 @@ public class Main extends Application {
             stage.setMinHeight(417);
 
             // set app icon and title
-            stage.setTitle("Luke Task Manager");
+            stage.setTitle("Fluke Mips Simulator");
             Image icon = new Image(getClass().getResource("/images/appicon.png").toExternalForm());
             stage.getIcons().add(icon);
 

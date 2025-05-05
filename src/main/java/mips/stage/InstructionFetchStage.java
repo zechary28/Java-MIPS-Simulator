@@ -62,12 +62,12 @@ public class InstructionFetchStage {
 
     public static String draw() {
         StringBuilder output = new StringBuilder();
-        output.append("+--------- [Instruction Fetch Stage ] ----------+");
-        output.append("| Program Counter: " + MIPS.getPC() + "                           |");
-        output.append("| done: " + done + "                                    |");
-        output.append("| Instruction Number: " + MIPS.getInstructionNumber() + "                        |");
-        output.append("| Instruction: " + instruction + " |");
-        output.append("+-----------------------------------------------+");
+        output.append("+--------- [Instruction Fetch Stage ] ----------+\n");
+        output.append("| Program Counter: " + MIPS.getPC() + "                           |\n");
+        output.append("| done: " + done + "                                    |\n");
+        output.append("| Instruction Number: " + MIPS.getInstructionNumber() + "                        |\n");
+        output.append("| Instruction: " + instruction + " |\n");
+        output.append("+-----------------------------------------------+\n");
         return output.toString();
     }
 }
