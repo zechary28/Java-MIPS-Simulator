@@ -42,7 +42,8 @@ public class Fluke {
         ));
         // TODO READ TEXT
         mips.loadInstruction(List.of(
-                MIPS.add(2, 1, 1), // 1
+                MIPS.addi(1, 1, 1), // 1
+                MIPS.add(2, 1, 1), // 1 RAW
                 MIPS.add(4, 2, 2), // 2 RAW
                 MIPS.sub(3, 4, 1), // 3 RAW
                 MIPS.add(7, 3, 4), // 4 RAW
@@ -50,8 +51,30 @@ public class Fluke {
                 MIPS.add(10, 5, 5), // 6 1010 RAW
                 MIPS.addi(12, 10, 2), // 7 1100 RAW
                 MIPS.and(8, 10, 12), // 8 and 1000 RAW
-                MIPS.or(14, 10, 12) // 9 or 1110
+                MIPS.or(14, 10, 12), // 9 or 1110
+                new Word(),
+                new Word(),
+                new Word(),
+                new Word()
         ));
+        /*
+        result:
+        0:0
+        1:1
+        2:2
+        3:3
+        4:4
+        5:5
+        6:0
+        7:7
+        8:8
+        9:0
+        10:10
+        11:0
+        12:12
+        13:0
+        14:14
+         */
 
         this.ui = new Ui();
         try {
@@ -97,6 +120,10 @@ public class Fluke {
             this.output.append(mips.cycle(true));
         } else if (command.equals("pipeline")) {
             this.output.append(mips.pipeline(true));
+        } else if (command.equals("regs")) {
+            this.output.append(mips.drawRegs());
+        } else if (command.equals("mem")) {
+            this.output.append(mips.drawMem());
         } else {
             this.output.append("Invalid command");
         }
