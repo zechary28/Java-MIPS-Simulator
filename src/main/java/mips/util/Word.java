@@ -2,39 +2,40 @@ package mips.util;
 
 // abstraction of a 32-bit long data
 public class Word {
-    private final String word;
+//    private final String word;
+    private StringBuilder word;
     public static final int WORD_LENGTH = 32;
 
     public Word() {
-        this.word = "00000000000000000000000000000000";
+        this.word = new StringBuilder("00000000000000000000000000000000");
     }
 
     public Word(String str) {
-        String s = "";
+        StringBuilder s = new StringBuilder();
         int count = 0;
         int bitcount = 0;
-        int i = str.length() - 1;
+        int i = 0;
         char c;
         // take only 0s and 1s starting from left side of input
         while (count < str.length() && bitcount < WORD_LENGTH) {
             c = str.charAt(i);
             if (c == '0' || c == '1') {
-                s = c + s;
+                s.append(c);
                 bitcount ++;
             }
             count++;
-            i--;
+            i++;
         }
         // if input too short, add leading zeros
         String zeros = "";
         for (int j = 0; j < WORD_LENGTH - bitcount; j++) {
             zeros = zeros + "0";
         }
-        this.word = zeros + s;
+        this.word = s.insert(0, zeros);
     }
 
     public String getWord() {
-        return this.word;
+        return this.word.toString();
     }
 
     public static Word add(int rd, int rs, int rt) {
@@ -199,6 +200,10 @@ public class Word {
 
     @Override
     public String toString() {
-        return getWord();
+        StringBuilder withspace = new StringBuilder(this.word.toString());
+        for (int i = 0; i < 4; i++) {
+            withspace.insert(8 * i + i, " ");
+        }
+        return withspace.toString();
     }
 }

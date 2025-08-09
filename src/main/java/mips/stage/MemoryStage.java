@@ -17,7 +17,7 @@ public class MemoryStage {
     private static Word ReadData;
 
     public static Word getReadData() {
-        System.out.println("get read data from mem" + ReadData);
+//        System.out.println("get read data from mem" + ReadData);
         return ReadData;
     }
 

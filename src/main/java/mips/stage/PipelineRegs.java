@@ -103,7 +103,7 @@ public class PipelineRegs {
 
         ReadData3 = MemoryStage.getReadData();
         ALUResult3 = ALUResult2;
-        System.out.println(ALUResult3 + " ALURes3 stored");
+//        System.out.println(ALUResult3 + " ALURes3 stored");
         WriteRegister3 = WriteRegister2;
     }
     

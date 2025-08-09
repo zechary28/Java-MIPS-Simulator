@@ -14,8 +14,6 @@ import javafx.stage.Stage;
  */
 public class Main extends Application {
 
-    private final Fluke fluke = new Fluke();
-
     @Override
     public void start(Stage stage) {
         try {
@@ -33,8 +31,6 @@ public class Main extends Application {
 
             // get controller
             MainWindow controller = fxmlLoader.getController();
-
-            controller.setFluke(fluke); // inject the Duke instance
 
             // bind lifecycle events
             stage.setOnShown(event -> controller.handleStartUp());

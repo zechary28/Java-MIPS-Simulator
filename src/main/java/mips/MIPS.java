@@ -321,8 +321,8 @@ public class MIPS {
             ProgramCounter = DecodeStage.getJumpAddress();
         }
 
-        output.append(drawRegs());
-        output.append(drawMem());
+//        output.append(drawRegs());
+//        output.append(drawMem());
 
         return output.toString();
     }
@@ -338,17 +338,17 @@ public class MIPS {
         // back to front
 
         // PIPELINE 3 WB
-        output.append(PipelineRegs.ReadData3);
+//        output.append(PipelineRegs.ReadData3);
 
         Word WD;
         if (PipelineRegs.MemToReg3 == '1') {
             WD = PipelineRegs.ReadData3;
-            output.append("read data 3 chosen: ");
-            output.append(WD);
+//            output.append("read data 3 chosen: ");
+//            output.append(WD);
         } else {
             WD = PipelineRegs.ALUResult3;
-            output.append("alu res 3 chosen: ");
-            output.append(WD);
+//            output.append("alu res 3 chosen: ");
+//            output.append(WD);
         }
         WriteBackStage.update(PipelineRegs.WriteRegister3, WD, PipelineRegs.RegWrite3);
         WriteBackStage.run();
@@ -379,16 +379,16 @@ public class MIPS {
         Word result = ALUStage.getResult();
         if (DecodeStage.shiftleft) {
             result = DecodeStage.getRD2().logicalShiftLeft(DecodeStage.getShift());
-            output.append("shift left chosen");
+//            output.append("shift left chosen");
         } else if (DecodeStage.shiftright) {
             result = DecodeStage.getRD2().logicalShiftRight(DecodeStage.getShift());
-            output.append("shift right chosen");
+//            output.append("shift right chosen");
         } else {
-            output.append("ALU result chosen");
+//            output.append("ALU result chosen");
 
         }
-        output.append("result: ");
-        output.append(result);
+//        output.append("result: ");
+//        output.append(result);
         PipelineRegs.store2(result, BranchRes);
 
         // WR decided at pipeline 1 and stored using PipelineRegs.store1()
@@ -406,8 +406,8 @@ public class MIPS {
         
         if (ControlUnit.getJump()) {
             ProgramCounter = DecodeStage.getJumpAddress();
-            output.append("PC jump to ");
-            output.append(ProgramCounter);
+//            output.append("PC jump to ");
+//            output.append(ProgramCounter);
         }
 
         // IF Stage
@@ -422,27 +422,27 @@ public class MIPS {
             output.append(MemoryStage.draw());
             output.append(WriteBackStage.draw());
         }
-        output.append(drawRegs());
-        output.append(drawMem());
+//        output.append(drawRegs());
+//        output.append(drawMem());
 
         if (InstructionFetchStage.RAW3 || InstructionFetchStage.RAW2 || InstructionFetchStage.RAW1) {
             PipelineRegs.stall();
-            output.append("RAW DETECTED");
-            output.append("will stall next instruction");
+//            output.append("RAW DETECTED");
+//            output.append("will stall next instruction");
         } else {
             PipelineRegs.store0(ProgramCounter + 4);
             ProgramCounter = PCSrc == '0'
             ? PipelineRegs.PCplus4_0
             : PipelineRegs.BranchResult2;
-            output.append("PC to ");
-            output.append(ProgramCounter);
-            output.append(" for next instr");
+//            output.append("PC to ");
+//            output.append(ProgramCounter);
+//            output.append(" for next instr");
             instructionNumber++;
         }
         totalCycles++;
-        output.append("cycles done: ");
-        output.append(getTotalCycles());
-        output.append(PipelineRegs.ReadData3);
+//        output.append("cycles done: ");
+//        output.append(getTotalCycles());
+//        output.append(PipelineRegs.ReadData3);
         return output.toString();
     }
 
