@@ -321,6 +321,27 @@ public class Fluke {
 //        }
 //    }
 
+    /** TODO follow getmem
+     * Gets an ArrayList of instructions to show to the UI.
+     */
+    public ArrayList<Word> getInstructions() {
+        return MIPS.getInstructions();
+    }
+
+    /** TODO follow getmem
+     * Gets an ArrayList of registers to show to the UI.
+     */
+    public ArrayList<Word> getRegisters() {
+        return MIPS.getRegisters();
+    }
+
+    /**
+     * Gets a List of memory to show to the UI.
+     */
+    public List<Word> getMemory() {
+        return MIPS.getMemory();
+    }
+
     /**
      * TODO: CHANGE TO PRINT CURRENT REGISTERS OR INSTRUCTIONS OR STAGE DATA
      * Prints the list of tasks to the UI.
@@ -457,7 +478,6 @@ public class Fluke {
 //        String end = inputArr[4];
 //        return new Event(name, isDone, start, end);
 //    }
-
     /**
      * TODO: CHANGE TO WRITE DATA
      * Writes the current task list to the storage file.

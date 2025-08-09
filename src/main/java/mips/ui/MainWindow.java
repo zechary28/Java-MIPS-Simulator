@@ -1,12 +1,18 @@
 package mips.ui;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import mips.util.Word;
+
+import java.util.List;
+
 /**
  * Controller for the main GUI.
  */
@@ -18,7 +24,13 @@ public class MainWindow extends AnchorPane {
     @FXML
     private TextField userInput;
     @FXML
-    private Button sendButton;
+    private Button cycleButton;
+    @FXML
+    private Button pipelineButton;
+    @FXML
+    private ListView<Word> memoryListView;
+    @FXML
+    private ListView<Word> registerListView;
 
     private Fluke fluke;
 
@@ -27,8 +39,13 @@ public class MainWindow extends AnchorPane {
 
     @FXML
     public void initialize() {
-        scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
-    }
+        this.fluke = new Fluke();
+        List<Word> mem = this.fluke.getMemory();
+        memoryListView.setCellFactory(listView -> new DataListCell());
+        memoryListView.getItems().setAll(mem);
+        List<Word> regs = this.fluke.getRegisters();
+        registerListView.setCellFactory(listView -> new DataListCell());
+        registerListView.getItems().setAll(regs);    }
 
     /** Injects the Fluke instance */
     public void setFluke(Fluke d) {
@@ -43,11 +60,50 @@ public class MainWindow extends AnchorPane {
     private void handleUserInput() {
         String input = userInput.getText();
         String response = fluke.getResponse(input);
+        updateTables();
         dialogContainer.getChildren().addAll(
                 DialogBox.getUserDialog(input, userImage),
                 DialogBox.getDukeDialog(response, dukeImage)
         );
+        Platform.runLater(() -> {
+            scrollPane.setVvalue(1.0);
+        });
         userInput.clear();
+    }
+
+    @FXML
+    private void handlePipelineInput() {
+        String response = fluke.getResponse("pipeline");
+        updateTables();
+        dialogContainer.getChildren().addAll(
+                DialogBox.getUserDialog("pipeline", userImage),
+                DialogBox.getDukeDialog(response, dukeImage)
+        );
+        userInput.clear();
+        Platform.runLater(() -> {
+            scrollPane.setVvalue(1.0);
+        });
+    }
+
+    @FXML
+    private void handleCycleInput() {
+        String response = fluke.getResponse("cycle");
+        updateTables();
+        dialogContainer.getChildren().addAll(
+                DialogBox.getUserDialog("cycle", userImage),
+                DialogBox.getDukeDialog(response, dukeImage)
+        );
+        Platform.runLater(() -> {
+            scrollPane.setVvalue(1.0);
+        });
+        userInput.clear();
+    }
+
+    private void updateTables() {
+        List<Word> mem = this.fluke.getMemory();
+        List<Word> regs = this.fluke.getRegisters();
+        memoryListView.getItems().setAll(mem);
+        registerListView.getItems().setAll(regs);
     }
 
     /**

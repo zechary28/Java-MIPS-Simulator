@@ -2,6 +2,7 @@
 *.class
 
 # Gradle build files
+.gradle/
 /.gradle/
 /build/
 src/main/resources/docs/
